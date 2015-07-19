@@ -208,22 +208,42 @@ class ADODB_db2 extends ADOConnection {
 	}
 
 
-	function ServerInfo()
-	{
-		$row = $this->GetRow("SELECT service_level, fixpack_num FROM TABLE(sysproc.env_get_inst_info())
-			as INSTANCEINFO");
+	/**
+        * Returns information about the database
+        *
+        * @return string[]    Array of information
+        * @api
+        */
+        function ServerInfo()
+        {
+                global $ADODB_FETCH_MODE;
+        
+                $save = $ADODB_FETCH_MODE;
+                $ADODB_FETCH_MODE = ADODB_FETCH_NUM;
+        
+                if ($this->fetchMode !== false) 
+                        $savem = $this->setFetchMode(false);
+        
+                $sql = "SELECT service_level, fixpack_num, inst_name
+                          FROM TABLE(sysproc.env_get_inst_info())
+                             AS INSTANCEINFO";
+                $row = $this->GetRow($sql);
 
-
-		if ($row) {
-			$info['version'] = $row[0].':'.$row[1];
-			$info['fixpack'] = $row[1];
-			$info['description'] = '';
-		} else {
-			return ADOConnection::ServerInfo();
-		}
-
-		return $info;
-	}
+                if (isset($savem)) 
+                        $this->SetFetchMode($savem);
+        
+                $ADODB_FETCH_MODE = $save;
+        
+                if (!$row)
+                return ADOConnection::ServerInfo();
+            
+                $info['version']     = $row[0].':'.$row[1];
+                $info['fixpack']     = $row[1];
+                $info['description'] = $row[2];
+        
+                return $info;
+        
+        }
 
 	function CreateSequence($seqname='adodbseq',$start=1)
 	{
