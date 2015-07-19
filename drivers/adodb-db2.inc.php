@@ -758,8 +758,18 @@ class ADORecordSet_db2 extends ADORecordSet {
 	}
 
 
-	// returns the field object
-	function FetchField($offset = -1)
+	/**
+	 *  returns the database specific field object
+	 * 
+	 * The return value is influenced by the ADODB_ASSOC_CASE
+	 * constant
+	 * 
+	 * @param int $offset (optional) default 0
+	 * 
+	 * @return obj The database field object
+	 * @api
+	 * /
+	function fetchField($offset = 0)
 	{
 		$o= new ADOFieldObject();
 		$o->name = @db2_field_name($this->_queryID,$offset);
