@@ -810,21 +810,14 @@ class ADORecordSet_db2 extends ADORecordSet {
 		return false;
 	}
 
-	// speed up SelectLimit() by switching to ADODB_FETCH_NUM as ADODB_FETCH_ASSOC is emulated
-	function GetArrayLimit($nrows,$offset=-1)
+	function GetArrayLimit($nrows,$offset=0)
 	{
 		if ($offset <= 0) {
 			$rs = $this->GetArray($nrows);
 			return $rs;
 		}
-		$savem = $this->fetchMode;
-		$this->fetchMode = ADODB_FETCH_NUM;
+		
 		$this->Move($offset);
-		$this->fetchMode = $savem;
-
-		if ($this->fetchMode & ADODB_FETCH_ASSOC) {
-			$this->fields = $this->GetRowAssoc();
-		}
 
 		$results = array();
 		$cnt = 0;
@@ -832,7 +825,7 @@ class ADORecordSet_db2 extends ADORecordSet {
 			$results[$cnt++] = $this->fields;
 			$this->MoveNext();
 		}
-
+		
 		return $results;
 	}
 
@@ -842,13 +835,14 @@ class ADORecordSet_db2 extends ADORecordSet {
 		if ($this->_numOfRows != 0 && !$this->EOF) {
 			$this->_currentRow++;
 
-			$this->fields = @db2_fetch_array($this->_queryID);
-			if ($this->fields) {
-				if ($this->fetchMode & ADODB_FETCH_ASSOC) {
-					$this->fields = $this->GetRowAssoc();
-				}
+			if ($this->fetchMode & ADODB_FETCH_ASSOC)
+			    $this->fields = @db2_fetch_assoc($this->_queryID);
+			else
+			    $this->fields = @db2_fetch_array($this->_queryID);
+			
+			if ($this->fields) 
 				return true;
-			}
+			
 		}
 		$this->fields = false;
 		$this->EOF = true;
@@ -857,14 +851,15 @@ class ADORecordSet_db2 extends ADORecordSet {
 
 	function _fetch()
 	{
-
-		$this->fields = db2_fetch_array($this->_queryID);
-		if ($this->fields) {
-			if ($this->fetchMode & ADODB_FETCH_ASSOC) {
-				$this->fields = $this->GetRowAssoc();
-			}
+		
+		if ($this->fetchMode & ADODB_FETCH_ASSOC)
+			$this->fields = db2_fetch_assoc($this->_queryID);
+		else
+			$this->fields = db2_fetch_array($this->_queryID);
+		
+		if ($this->fields) 
 			return true;
-		}
+		
 		$this->fields = false;
 		return false;
 	}
