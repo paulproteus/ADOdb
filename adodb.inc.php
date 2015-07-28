@@ -3788,19 +3788,24 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	 * @param int $upper Case for the array keys, defaults to uppercase
 	 *                   (see ADODB_ASSOC_CASE_xxx constants)
 	 */
-	function GetRowAssoc($upper = ADODB_ASSOC_CASE) {
-		$record = array();
-		$this->GetAssocKeys($upper);
+	function GetRowAssoc($upper=ADODB_ASSOC_CASE_UPPER)
+	{
 
-		foreach($this->bind as $k => $v) {
-			if( array_key_exists( $v, $this->fields ) ) {
+                $record = array();
+		if (!$this->bind) {
+			$this->GetAssocKeys($upper);
+		}
+		
+                foreach($this->bind as $k => $v) {
+			if( isset($this->fields[$v] ) ) {
 				$record[$k] = $this->fields[$v];
-			} elseif( array_key_exists( $k, $this->fields ) ) {
+			
+                         } elseif( isset( $this->fields[$k] ) ) {
 				$record[$k] = $this->fields[$k];
-			} else {
-				# This should not happen... trigger error ?
-				$record[$k] = null;
-			}
+		         } else {
+
+                                $record[$k] = $this->fields[$v];
+		         }
 		}
 		return $record;
 	}
