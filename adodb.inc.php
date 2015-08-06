@@ -3424,8 +3424,8 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 						$keys = array_slice(array_keys($this->fields), 1);
 						$sliced_array = array();
 
-						foreach($keys as $key) {
-							$sliced_array[$key] = $this->fields[$key];
+						foreach($keys as $index=>$key) {
+							$sliced_array[$index] = $this->fields[$key];
 						}
 
 						$results[trim(reset($this->fields))] = $sliced_array;
