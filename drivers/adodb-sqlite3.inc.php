@@ -394,7 +394,7 @@ class ADORecordset_sqlite3 extends ADORecordSet {
 
 	function _initrs()
 	{
-		$this->_numOfRows = 1;
+		$this->_numOfRows = count($this->fields);
 		$this->_numOfFields = $this->_queryID->numColumns();
 
 	}
